@@ -114,7 +114,21 @@ $color3: #0025f1;
     .panel-lyrics {
       width: 100vw;
       height: 100%;
-      background: grey;
+      line-height: 2;
+      text-align: center;
+      overflow: hidden;
+
+      .container {
+        transition: all 0.3s;
+        transform: translateY(-187px);
+        p {
+          font-size: 14px;
+          color: $color1;
+          &.current {
+            color: $color;
+          }
+        }
+      }
     }
   }
   .footer {

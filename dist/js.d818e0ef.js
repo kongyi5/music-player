@@ -250,19 +250,22 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-var $ = function $(selector) {
-  return document.querySelector(selector);
-};
-
-var $$ = function $$(selector) {
-  return document.querySelectorAll(selector);
-};
-
 var Player = /*#__PURE__*/function () {
   function Player(node) {
+    var _this = this;
+
     _classCallCheck(this, Player);
 
-    this.root = typeof node === 'string' ? $(node) : node;
+    this.root = typeof node === 'string' ? document.querySelector(node) : node;
+
+    this.$ = function (selector) {
+      return _this.root.querySelector(selector);
+    };
+
+    this.$$ = function (selector) {
+      return _this.root.querySelectorAll(selector);
+    };
+
     this.audio = new Audio();
     this.songList = [];
     this.currentIndex = 0;
@@ -273,14 +276,15 @@ var Player = /*#__PURE__*/function () {
   _createClass(Player, [{
     key: "start",
     value: function start() {
-      var _this = this;
+      var _this2 = this;
 
       fetch('https://jirengu.github.io/data-mock/huawei-music/music-list.json').then(function (res) {
         return res.json();
       }).then(function (data) {
         console.log(data);
-        _this.songList = data;
-        _this.audio.src = _this.songList[_this.currentIndex].url;
+        _this2.songList = data;
+
+        _this2.renderSong();
       });
     }
   }, {
@@ -288,7 +292,7 @@ var Player = /*#__PURE__*/function () {
     value: function bind() {
       var self = this;
 
-      this.root.querySelector('.btn-play-pause').onclick = function () {
+      this.$('.btn-play-pause').onclick = function () {
         if (this.classList.contains('playing')) {
           self.audio.pause();
           this.classList.remove('playing');
@@ -302,15 +306,15 @@ var Player = /*#__PURE__*/function () {
         }
       };
 
-      this.root.querySelector('.btn-pre').onclick = function () {
+      this.$('.btn-pre').onclick = function () {
         self.playPrevSong();
       };
 
-      this.root.querySelector('.btn-next').onclick = function () {
+      this.$('.btn-next').onclick = function () {
         self.playNextSong();
       };
 
-      var swiper = new _swiper.default(this.root.querySelector('.panels'));
+      var swiper = new _swiper.default(this.$('.panels'));
       swiper.on('swipeLeft', function () {
         this.classList.remove('panel1');
         this.classList.add('panel2');
@@ -321,20 +325,17 @@ var Player = /*#__PURE__*/function () {
       });
     }
   }, {
-    key: "playPrevSong",
-    value: function playPrevSong() {
-      var _this2 = this;
-
-      this.currentIndex = [this.songList.length + this.currentIndex - 1] % this.songList.length;
-      this.audio.src = this.songList[this.currentIndex].url;
-
-      this.audio.oncanplaythrough = function () {
-        return _this2.audio.play();
-      };
+    key: "renderSong",
+    value: function renderSong() {
+      var songObj = this.songList[this.currentIndex];
+      this.$('.header h1').innerText = songObj.title;
+      this.$('.header p').innerText = songObj.author + '-' + songObj.albumn;
+      this.audio.src = songObj.url;
+      this.loadLyrics();
     }
   }, {
-    key: "playNextSong",
-    value: function playNextSong() {
+    key: "playPrevSong",
+    value: function playPrevSong() {
       var _this3 = this;
 
       this.currentIndex = [this.songList.length + this.currentIndex - 1] % this.songList.length;
@@ -344,12 +345,45 @@ var Player = /*#__PURE__*/function () {
         return _this3.audio.play();
       };
     }
+  }, {
+    key: "playNextSong",
+    value: function playNextSong() {
+      var _this4 = this;
+
+      this.currentIndex = [this.songList.length + this.currentIndex - 1] % this.songList.length;
+      this.audio.src = this.songList[this.currentIndex].url;
+      this.renderSong();
+
+      this.audio.oncanplaythrough = function () {
+        return _this4.audio.play();
+      };
+    }
+  }, {
+    key: "loadLyrics",
+    value: function loadLyrics() {
+      fetch(this.songList[this.currentIndex].lyric).then(function (res) {
+        return res.json();
+      }).then(function (data) {
+        console.log(data.lrc.lyric);
+      });
+    }
+  }, {
+    key: "setLineToCenter",
+    value: function setLineToCenter(node) {
+      var offset = node.offsetTop - this.$('.panels .container').offsetHeight / 2;
+      offset = offset > 0 ? offset : 0;
+      this.$('.panels .container').style.transform = "translateY(-".concat(offset, "px)");
+      this.$$('.panels .container p').forEach(function (node) {
+        return node.classList.remove('current');
+      });
+      node.classList.add('current');
+    }
   }]);
 
   return Player;
 }();
 
-new Player('#player');
+window.P = new Player('#player');
 },{"./icons.js":"src/js/icons.js","./swiper.js":"src/js/swiper.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
@@ -378,7 +412,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50490" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63828" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

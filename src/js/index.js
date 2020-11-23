@@ -1,12 +1,11 @@
 import './icons.js'
 import Swiper from './swiper.js'
 
-const $ = selector => document.querySelector(selector)
-const $$ = selector => document.querySelectorAll(selector)
-
 class Player{
   constructor(node){
-    this.root = typeof node === 'string' ? $(node) : node
+    this.root = typeof node === 'string' ? document.querySelector(node) : node
+    this.$ = selector => this.root.querySelector(selector)
+    this.$$ = selector => this.root.querySelectorAll(selector)
     this.audio = new Audio()
     this.songList = []
     this.currentIndex = 0
@@ -19,12 +18,12 @@ class Player{
       .then(data => {
         console.log(data)
         this.songList = data
-        this.audio.src = this.songList[this.currentIndex].url
+        this.renderSong()
       })
   }
   bind(){
     const self = this
-    this.root.querySelector('.btn-play-pause').onclick = function(){
+    this.$('.btn-play-pause').onclick = function(){
       if(this.classList.contains('playing')){
         self.audio.pause()
         this.classList.remove('playing')
@@ -37,14 +36,14 @@ class Player{
         this.querySelector('use').setAttribute('xlink:href', '#icon-pause')
       }
     }
-    this.root.querySelector('.btn-pre').onclick = function(){
+    this.$('.btn-pre').onclick = function(){
       self.playPrevSong()
     }
-    this.root.querySelector('.btn-next').onclick = function(){
+    this.$('.btn-next').onclick = function(){
       self.playNextSong()
     }
 
-    let swiper = new Swiper(this.root.querySelector('.panels'));
+    let swiper = new Swiper(this.$('.panels'));
     swiper.on('swipeLeft', function(){
       this.classList.remove('panel1')
       this.classList.add('panel2')
@@ -56,6 +55,14 @@ class Player{
 
   }
 
+  renderSong(){
+    let songObj = this.songList[this.currentIndex]
+    this.$('.header h1').innerText = songObj.title
+    this.$('.header p').innerText = songObj.author + '-' + songObj.albumn
+    this.audio.src = songObj.url
+    this.loadLyrics()
+  }
+
   playPrevSong(){
     this.currentIndex = [this.songList.length + this.currentIndex -1] % this.songList.length
     this.audio.src = this.songList[this.currentIndex].url
@@ -64,8 +71,23 @@ class Player{
   playNextSong(){
     this.currentIndex = [this.songList.length + this.currentIndex -1] % this.songList.length
     this.audio.src = this.songList[this.currentIndex].url
+    this.renderSong()
     this.audio.oncanplaythrough = () => this.audio.play()
+  }
+  loadLyrics(){
+    fetch(this.songList[this.currentIndex].lyric)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data.lrc.lyric)
+      })
+  }
+  setLineToCenter(node){
+    let offset = node.offsetTop - this.$('.panels .container').offsetHeight / 2
+    offset = offset > 0 ? offset : 0
+    this.$('.panels .container').style.transform = `translateY(-${offset}px)`
+    this.$$('.panels .container p').forEach(node => node.classList.remove('current'))
+    node.classList.add('current')
   }
 }
 
-new Player('#player')
+window.P = new Player('#player')
