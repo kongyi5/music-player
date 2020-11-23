@@ -166,6 +166,7 @@ var Player = /*#__PURE__*/function () {
       }).then(function (data) {
         console.log(data);
         _this.songList = data;
+        _this.audio.src = _this.songList[_this.currentIndex].url;
       });
     }
   }, {
@@ -174,15 +175,50 @@ var Player = /*#__PURE__*/function () {
       var self = this;
 
       this.root.querySelector('.btn-play-pause').onclick = function () {
-        console.log(self.audio);
-        self.playSong();
+        if (this.classList.contains('playing')) {
+          self.audio.pause();
+          this.classList.remove('playing');
+          this.classList.add('pause');
+          this.querySelector('use').setAttribute('xlink:href', '#icon-play');
+        } else if (this.classList.contains('pause')) {
+          self.audio.play();
+          this.classList.remove('pause');
+          this.classList.add('playing');
+          this.querySelector('use').setAttribute('xlink:href', '#icon-pause');
+        }
+      };
+
+      this.root.querySelector('.btn-pre').onclick = function () {
+        self.playPrevSong();
+      };
+
+      this.root.querySelector('.btn-next').onclick = function () {
+        self.playNextSong();
       };
     }
   }, {
-    key: "playSong",
-    value: function playSong() {
+    key: "playPrevSong",
+    value: function playPrevSong() {
+      var _this2 = this;
+
+      this.currentIndex = [this.songList.length + this.currentIndex - 1] % this.songList.length;
       this.audio.src = this.songList[this.currentIndex].url;
-      this.audio.play();
+
+      this.audio.oncanplaythrough = function () {
+        return _this2.audio.play();
+      };
+    }
+  }, {
+    key: "playNextSong",
+    value: function playNextSong() {
+      var _this3 = this;
+
+      this.currentIndex = [this.songList.length + this.currentIndex - 1] % this.songList.length;
+      this.audio.src = this.songList[this.currentIndex].url;
+
+      this.audio.oncanplaythrough = function () {
+        return _this3.audio.play();
+      };
     }
   }]);
 
@@ -218,7 +254,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56701" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50490" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

@@ -6,6 +6,7 @@
 #player {
   height: 100vh;
   background: #060a3d;
+  overflow: hidden;
 }
 #player .header {
   height: 110px;

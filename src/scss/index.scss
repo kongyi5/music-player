@@ -13,6 +13,8 @@ $color3: #0025f1;
 #player {
   height: 100vh;
   background: $bgColor;
+  overflow: hidden;
+
   .header {
     height: 110px;
     text-align: center;
@@ -55,7 +57,6 @@ $color3: #0025f1;
     display: flex;
     transition: transform 0.3s;
     align-items: center;
-
     &.panel1 {
       transform: translateX(0vw);
     }
