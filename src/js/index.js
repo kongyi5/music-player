@@ -1,4 +1,5 @@
 import './icons.js'
+import Swiper from './swiper.js'
 
 const $ = selector => document.querySelector(selector)
 const $$ = selector => document.querySelectorAll(selector)
@@ -42,7 +43,19 @@ class Player{
     this.root.querySelector('.btn-next').onclick = function(){
       self.playNextSong()
     }
+
+    let swiper = new Swiper(this.root.querySelector('.panels'));
+    swiper.on('swipeLeft', function(){
+      this.classList.remove('panel1')
+      this.classList.add('panel2')
+    })
+    swiper.on('swipeRight', function(){
+      this.classList.remove('panel2')
+      this.classList.add('panel1')
+    })
+
   }
+
   playPrevSong(){
     this.currentIndex = [this.songList.length + this.currentIndex -1] % this.songList.length
     this.audio.src = this.songList[this.currentIndex].url
@@ -56,4 +69,3 @@ class Player{
 }
 
 new Player('#player')
-
